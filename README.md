@@ -12,5 +12,5 @@ _Disciplina Projeto Integrado 1_
 Professor: **Denny Paulista Azevedo Filho**
 
 
-_Autor: Denny Paulista Azevedo Filho_
+_Autor: Marielle Garcia - CG301729X_
 

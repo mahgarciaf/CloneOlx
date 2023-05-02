@@ -1,6 +1,7 @@
 const { checkSchema } = require('express-validator');
 
 module.exports = {
+    // cadastro de usuário
     signup: checkSchema({
         name: {
             trim: true,
@@ -25,6 +26,7 @@ module.exports = {
             errorMessage: 'Estado não preenchido'
         }
     }),
+    // logando
     signin: checkSchema({
         email: {
             isEmail: true,

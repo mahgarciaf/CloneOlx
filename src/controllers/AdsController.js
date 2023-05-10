@@ -196,5 +196,78 @@ module.exports = {
             stateName: stateInfo.name,
             others
         });
+    },
+    editAction: async (req, res) => {
+        let {id} = req.params;
+        let {title, status, price, priceneg, desc, cat, images, token} = req.body;
+        if(!mongoose.Types.ObjectId.isValid(id)) {
+            res.json({error: 'ID inválido'});
+            return;
+        }
+        const ad = await Ad.findById(id).exec();
+        if(!ad) {
+            res.json({error: 'Anúncio inexistente'});
+            return;
+        }
+        const user = await User.findOne({token}).exec();
+        if(user._id.toString() !== ad.User) {
+            res.json({error: 'Esse anúncio não é seu'});
+            return;
+        }
+        let updates = {}
+        if(title) {
+            updates.title = title;
+        }
+        if (price) {
+            price = price
+                .replace('.','')
+                .replace(',','.')
+                .replace('R$','');
+            price = parseFloat(price);
+            updates.price = price;
+        }
+        if(priceneg) {
+            updates.priceNegotiable = priceneg;
+        }
+        if(status) {
+            updates.status = status;
+        }
+        if(desc) {
+            updates.description = desc;
+        }
+        if(cat) {
+            const category = await Category.findOne({slug: cat}).exec();
+            if(!category) {
+                res.json({error: 'Categoria inexistente'});
+                return;
+            }
+            updates.category = category._id.toString();
+        }
+        if(images) {
+            updates.images = images;
+        }
+        await Ad.findByIdAndUpdate(id, { $set: updates });
+        if( req.files && req.files.img) {
+            if(req.files.img.lenght == undefined) {
+                if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.mimetype)) {
+                    let url = await addImage(req.files.img.data);
+                    newAd.images.push({
+                        url,
+                        default: false
+                    });
+                }
+            } else {
+                for (let i = 0; i < req.files.img.lenght; i++) {
+                    if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img[i].mimetype)){
+                        newAd.images.push({
+                            url,
+                            default: false
+                        });
+                    }
+                }
+            }
+            addImage.images = [...adT.images];
+            await addImage.save();
+        }
     }
 }
